@@ -389,6 +389,11 @@ const Dashboard = () => {
             recipe._id === recipeToUpdate ? { ...recipe, ...data.recipe } : recipe
           )
         );
+        setRecipes((prevRecipes) =>
+          prevRecipes.map((recipe) =>
+            recipe._id === recipeToUpdate ? { ...recipe, ...data.recipe } : recipe
+          )
+        );
 
         console.log("FilteredRecipeee : ",filteredRecipes)
   

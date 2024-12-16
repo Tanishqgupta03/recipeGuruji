@@ -40,7 +40,9 @@ export async function POST(request) {
         );
       } else {
         // Update the existing unverified user's details
+        console.log("new existingUserByEmail is here : ",existingUserByEmail)
         const hashedPassword = await bcrypt.hash(password, 10);
+        existingUserByEmail.username = username;
         existingUserByEmail.password = hashedPassword;
         existingUserByEmail.verifyCode = verifyCode;
         existingUserByEmail.verifyCodeExpiry = new Date(Date.now() + 3600000);
@@ -61,6 +63,9 @@ export async function POST(request) {
         verifyCodeExpiry: expiryDate,
         isVerified: false,
       });
+
+
+      console.log("new user is here : ",newUser)
 
       await newUser.save();
     }
