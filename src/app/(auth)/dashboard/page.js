@@ -1,5 +1,7 @@
 'use client'
 
+import { signOut } from "next-auth/react";
+//If you are using NextAuth.js, the signOut function handles clearing the session and redirecting.
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getSession } from "next-auth/react";
@@ -13,6 +15,7 @@ import { FaCheckCircle } from 'react-icons/fa';
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { XCircle } from "lucide-react";
 import { MoreVertical, Edit, Trash2 } from 'lucide-react'; // Import icons
+import { FaUserCircle, FaUser, FaSignOutAlt } from "react-icons/fa";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -37,7 +40,6 @@ const Dashboard = () => {
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
   const [isNewOpen, setIsNewOpen] = useState(false);
-  const [addButton, setAddButton] = useState(false);
   const [loading, setLoading] = useState(false); // For progress bar
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
@@ -46,6 +48,7 @@ const Dashboard = () => {
   const [isUpdateOpen,setIsUpdateOpen] = useState(false)
   const [recipeToUpdate, setRecipeToUpdate] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [userImage, setUserImage] = useState("");
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -451,6 +454,16 @@ const Dashboard = () => {
     fetchRecipes();
   }, [userId]); // Fetch recipes on component mount
 
+  const handleLogout = async () => {
+    try {
+      // Call signOut to clear session and redirect to homepage
+      await signOut({ callbackUrl: '/' });
+    } catch (error) {
+      console.error("Error during logout:", error);
+    }
+  };
+  
+
   if (loadingSession) {
     return <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-50 backdrop-blur-md z-40">
             <div className="flex flex-col items-center">
@@ -479,23 +492,73 @@ const Dashboard = () => {
 
         {/* Header Section */}
         <header className="flex justify-between items-center w-full px-6 py-4 bg-gray-100 shadow">
-        <div className="flex items-center">
-          <img
-            src="/images/logo.webp"
-            alt="RecipeGuruji Logo"
-            className="w-12 h-12 rounded-full"
-          />
-          <h1 className="ml-4 text-lg font-bold">Welcome {username}, to RecipeGuruji</h1>
-        </div>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="default">Register</Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              Register yourself for a better experience
-            </TooltipContent>
-          </Tooltip>
+          <div className="flex items-center">
+            <img
+              src="/images/logo.webp"
+              alt="RecipeGuruji Logo"
+              className="w-12 h-12 rounded-full"
+            />
+            <h1 className="ml-4 text-lg font-bold">Welcome {username}, to RecipeGuruji</h1>
+          </div>
+
+          <div className="relative">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                {/* User Profile Image/Icon */}
+                <div className="w-12 h-12 rounded-full border-2 border-gray-200 overflow-hidden cursor-pointer hover:shadow-md transition-shadow duration-300">
+                  {userImage ? (
+                    <img
+                      src={userImage}
+                      alt="User Profile"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <FaUserCircle className="w-full h-full text-gray-400" />
+                  )}
+                </div>
+              </DropdownMenuTrigger>
+
+              {/* Dropdown Content */}
+              <DropdownMenuContent className="w-56 rounded-lg shadow-lg p-4 bg-white">
+                {/* Centered User Icon and Name */}
+                <div className="flex flex-col items-center border-b pb-4 mb-4">
+                  <div className="w-16 h-16 rounded-full border-2 border-gray-200 overflow-hidden mb-2">
+                    {userImage ? (
+                      <img
+                        src={userImage}
+                        alt="User Profile"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <FaUserCircle className="w-full h-full text-gray-400" />
+                    )}
+                  </div>
+                  <span className="font-semibold text-gray-800">{username}</span>
+                </div>
+
+                {/* Dropdown Buttons with Appropriate Icons */}
+                <div className="flex flex-col space-y-2">
+                  {/* Personal Info */}
+                  <button className="flex items-center px-4 py-2 rounded-md hover:bg-gray-100 transition-colors duration-200">
+                    <FaUser className="w-5 h-5 text-gray-600 mr-2" />
+                    <span className="text-gray-700">Personal Info</span>
+                  </button>
+
+                  {/* Logout */}
+                  <button
+                    className="flex items-center px-4 py-2 rounded-md hover:bg-gray-100 transition-colors duration-200"
+                    onClick={() => handleLogout()}
+                  >
+                    <FaSignOutAlt className="w-5 h-5 text-gray-600 mr-2" />
+                    <span className="text-gray-700">Logout</span>
+                  </button>
+                </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </header>
+
+
 
         {/* Divider */}
         <div className="border-t border-gray-200 my-4 w-full"></div>
@@ -1253,11 +1316,11 @@ const Dashboard = () => {
               </div>
             )}
 
-{isDeleting && (
-  <div className="fixed inset-0 bg-gray-800 bg-opacity-50 z-50 flex items-center justify-center">
-    <span className="text-white text-lg font-semibold animate-bounce">Processing...</span>
-  </div>
-)}
+            {isDeleting && (
+              <div className="fixed inset-0 bg-gray-800 bg-opacity-50 z-50 flex items-center justify-center">
+                <span className="text-white text-lg font-semibold animate-bounce">Processing...</span>
+              </div>
+            )}
 
           </main>
         </div>
