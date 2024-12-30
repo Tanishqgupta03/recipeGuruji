@@ -16,6 +16,8 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { XCircle } from "lucide-react";
 import { MoreVertical, Edit, Trash2 } from 'lucide-react'; // Import icons
 import { FaUserCircle, FaUser, FaSignOutAlt } from "react-icons/fa";
+import { FaSearch } from 'react-icons/fa';
+import SearchDialog from "@/personalcomponents/searchDialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -49,6 +51,7 @@ const Dashboard = () => {
   const [recipeToUpdate, setRecipeToUpdate] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [userImage, setUserImage] = useState("");
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -501,28 +504,20 @@ const Dashboard = () => {
             <h1 className="ml-4 text-lg font-bold">Welcome {username}, to RecipeGuruji</h1>
           </div>
 
-          <div className="relative">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                {/* User Profile Image/Icon */}
-                <div className="w-12 h-12 rounded-full border-2 border-gray-200 overflow-hidden cursor-pointer hover:shadow-md transition-shadow duration-300">
-                  {userImage ? (
-                    <img
-                      src={userImage}
-                      alt="User Profile"
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <FaUserCircle className="w-full h-full text-gray-400" />
-                  )}
-                </div>
-              </DropdownMenuTrigger>
+          <div className="flex items-center space-x-4">
+            {/* Search Icon */}
+            <div
+              className="cursor-pointer text-gray-600 hover:text-gray-800 transition-colors"
+              onClick={() => setIsSearchOpen(true)}
+            >
+              <FaSearch className="w-6 h-6" />
+            </div>
 
-              {/* Dropdown Content */}
-              <DropdownMenuContent className="w-56 rounded-lg shadow-lg p-4 bg-white">
-                {/* Centered User Icon and Name */}
-                <div className="flex flex-col items-center border-b pb-4 mb-4">
-                  <div className="w-16 h-16 rounded-full border-2 border-gray-200 overflow-hidden mb-2">
+            <div className="relative">
+              {/* User Profile Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <div className="w-12 h-12 rounded-full border-2 border-gray-200 overflow-hidden cursor-pointer hover:shadow-md transition-shadow duration-300">
                     {userImage ? (
                       <img
                         src={userImage}
@@ -533,29 +528,46 @@ const Dashboard = () => {
                       <FaUserCircle className="w-full h-full text-gray-400" />
                     )}
                   </div>
-                  <span className="font-semibold text-gray-800">{username}</span>
-                </div>
+                </DropdownMenuTrigger>
 
-                {/* Dropdown Buttons with Appropriate Icons */}
-                <div className="flex flex-col space-y-2">
-                  {/* Personal Info */}
-                  <button className="flex items-center px-4 py-2 rounded-md hover:bg-gray-100 transition-colors duration-200">
-                    <FaUser className="w-5 h-5 text-gray-600 mr-2" />
-                    <span className="text-gray-700">Personal Info</span>
-                  </button>
+                <DropdownMenuContent className="w-56 rounded-lg shadow-lg p-4 bg-white">
+                  {/* Centered User Icon and Name */}
+                  <div className="flex flex-col items-center border-b pb-4 mb-4">
+                    <div className="w-16 h-16 rounded-full border-2 border-gray-200 overflow-hidden mb-2">
+                      {userImage ? (
+                        <img
+                          src={userImage}
+                          alt="User Profile"
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <FaUserCircle className="w-full h-full text-gray-400" />
+                      )}
+                    </div>
+                    <span className="font-semibold text-gray-800">{username}</span>
+                  </div>
 
-                  {/* Logout */}
-                  <button
-                    className="flex items-center px-4 py-2 rounded-md hover:bg-gray-100 transition-colors duration-200"
-                    onClick={() => handleLogout()}
-                  >
-                    <FaSignOutAlt className="w-5 h-5 text-gray-600 mr-2" />
-                    <span className="text-gray-700">Logout</span>
-                  </button>
-                </div>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                  {/* Dropdown Buttons with Appropriate Icons */}
+                  <div className="flex flex-col space-y-2">
+                    <button className="flex items-center px-4 py-2 rounded-md hover:bg-gray-100 transition-colors duration-200">
+                      <FaUser className="w-5 h-5 text-gray-600 mr-2" />
+                      <span className="text-gray-700">Personal Info</span>
+                    </button>
+                    <button
+                      className="flex items-center px-4 py-2 rounded-md hover:bg-gray-100 transition-colors duration-200"
+                      onClick={handleLogout}
+                    >
+                      <FaSignOutAlt className="w-5 h-5 text-gray-600 mr-2" />
+                      <span className="text-gray-700">Logout</span>
+                    </button>
+                  </div>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
+
+          {/* Search Dialog */}
+          <SearchDialog isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
         </header>
 
 
