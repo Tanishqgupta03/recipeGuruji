@@ -1,14 +1,67 @@
-// UserDetailsDialog.js
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { FaUserCircle } from "react-icons/fa";
 import { FiArrowRight } from "react-icons/fi";
 
 const UserDetailsDialog = ({ user, isOpen, onClose }) => {
   const [isFollowed, setIsFollowed] = useState(false);
+  const [stats, setStats] = useState({ followersCount: 0, followingCount: 0 });
+  const [loading, setLoading] = useState(false);
 
-  const handleFollowToggle = () => {
-    setIsFollowed((prev) => !prev);
+  useEffect(() => {
+    if (isOpen) {
+      fetchUserStats();
+    }
+  }, [isOpen]);
+
+  const fetchUserStats = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(`/api/user-stats?userId=${user._id}`);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to fetch user stats");
+      }
+
+      setStats({
+        followersCount: data.followersCount,
+        followingCount: data.followingCount,
+      });
+      setIsFollowed(data.isFollowed); // Set follow status from fetched data
+    } catch (error) {
+      console.error("Error fetching user stats:", error.message);
+      alert(error.message || "Something went wrong!");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFollowToggle = async () => {
+    try {
+      const method = isFollowed ? "DELETE" : "POST";
+
+      console.log("method ; ",method);
+      const response = await fetch("/api/follow-user", {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ followingId: user._id }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to update follow status");
+      }
+
+      setIsFollowed(!isFollowed); // Toggle the follow state
+      fetchUserStats(); // Update stats after follow/unfollow
+    } catch (error) {
+      console.error("Error following/unfollowing user:", error.message);
+      alert(error.message || "Something went wrong!");
+    }
   };
 
   return (
@@ -16,7 +69,7 @@ const UserDetailsDialog = ({ user, isOpen, onClose }) => {
       <DialogContent className="max-w-md p-6 mx-auto bg-white rounded-lg shadow-lg">
         <div className="flex items-center mb-4">
           <button
-            className="text-blue-500 hover:text-blue-700 mr-2"
+            className="text-black-500 hover:text-blue-700 mr-2"
             onClick={() => window.open(`/profiles/${user.username}`, "_blank")}
           >
             <FiArrowRight className="w-6 h-6" />
@@ -39,27 +92,29 @@ const UserDetailsDialog = ({ user, isOpen, onClose }) => {
           <p className="text-gray-500 text-sm">@{user.username}</p>
         </div>
 
-        <div className="mt-2">
-          <div className="flex justify-center space-x-4"> {/* Adjusted space-x-16 to space-x-8 for better gaps */}
-            <div className="text-center">
-              <p className="text-lg font-semibold">0</p>
-              <p className="text-sm text-gray-500">Posts</p>
-            </div>
-            <div className="text-center">
-              <p className="text-lg font-semibold">0</p>
-              <p className="text-sm text-gray-500">Followers</p>
-            </div>
-            <div className="text-center">
-              <p className="text-lg font-semibold">0</p>
-              <p className="text-sm text-gray-500">Following</p>
+        {loading ? (
+          <div className="flex justify-center mt-4">
+            <div className="stats-loader"></div>
+          </div>
+        ) : (
+          <div className="mt-2">
+            <div className="flex justify-center space-x-4">
+              <div className="text-center">
+                <p className="text-lg font-semibold">{stats.followersCount}</p>
+                <p className="text-sm text-gray-500">Followers</p>
+              </div>
+              <div className="text-center">
+                <p className="text-lg font-semibold">{stats.followingCount}</p>
+                <p className="text-sm text-gray-500">Following</p>
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         <button
           onClick={handleFollowToggle}
           className={`mt-6 w-full py-2 rounded-md font-semibold text-white transition duration-200 ${
-            isFollowed ? "bg-red-500 hover:bg-red-600" : "bg-blue-500 hover:bg-blue-600"
+            isFollowed ? "bg-black hover:bg-gray-800" : "bg-black hover:bg-gray-800"
           }`}
         >
           {isFollowed ? "Unfollow" : "Follow"}

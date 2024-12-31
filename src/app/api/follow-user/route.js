@@ -1,38 +1,56 @@
 import { dbConnect } from "@/lib/dbConnect";
 import Follower from "@/model/Follower";
-import { getSession } from 'next-auth/react'; // Ensure authenticated users
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "../auth/[...nextauth]/option";
 
-export default async function handler(req, res) {
-  if (req.method === 'POST') {
-    const { followingId } = req.body;
+export async function POST(request) {
+  try {
+    await dbConnect();
 
-    try {
-      await dbConnect();
-      const session = await getSession({ req });
+    const session = await getServerSession(authOptions);
 
-      if (!session) return res.status(401).json({ error: 'Unauthorized' });
+    console.log("session in follow : ",session)
 
-      const followerId = session.user.id; // Current user ID
-
-      // Prevent self-follow
-      if (followerId === followingId) {
-        return res.status(400).json({ error: "You can't follow yourself" });
-      }
-
-      // Create a follow relationship
-      const existingFollow = await Follower.findOne({ followerId, followingId });
-      if (existingFollow) {
-        return res.status(400).json({ error: 'Already following this user' });
-      }
-
-      await Follower.create({ followerId, followingId });
-      res.status(200).json({ message: 'Successfully followed' });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Server error' });
+    if (!session) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { "Content-Type": "application/json" } }
+      );
     }
-  } else {
-    res.setHeader('Allow', ['POST']);
-    res.status(405).end(`Method ${req.method} not allowed`);
+
+    const followerId = session.user.id;
+
+    console.log("followerId in follow : ",followerId)
+
+    const { followingId } = await request.json();
+
+    console.log("followingId in follow : ",followingId)
+
+    if (followerId === followingId) {
+      return new Response(
+        JSON.stringify({ error: "You can't follow yourself" }),
+        { status: 400, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+    const existingFollow = await Follower.findOne({ followerId, followingId });
+    if (existingFollow) {
+      return new Response(
+        JSON.stringify({ error: "Already following this user" }),
+        { status: 400, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+    await Follower.create({ followerId, followingId });
+    return new Response(
+      JSON.stringify({ message: "Successfully followed" }),
+      { status: 200, headers: { "Content-Type": "application/json" } }
+    );
+  } catch (error) {
+    console.error("Error following user:", error);
+    return new Response(
+      JSON.stringify({ error: "Server error" }),
+      { status: 500, headers: { "Content-Type": "application/json" } }
+    );
   }
 }
