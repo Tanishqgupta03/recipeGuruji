@@ -5,7 +5,9 @@ export async function POST(request) {
   await dbConnect(); // Connect to the database
 
   try {
-    const { title, description, ingredients,steps,heroIngredient,mealType,calorieIntake,youtubeLink,image, userId } = await request.json();
+    const { title, description, ingredients,steps,heroIngredient,mealType,calorieIntake,youtubeLink,imageUrl,public_id, userId } = await request.json();
+
+    console.log("public_id is : ",public_id)
 
     if(!title || !description){
         console.log("inside if ")
@@ -20,11 +22,14 @@ export async function POST(request) {
       ingredients,
       steps,
       mealType,
+      imageUrl,
       heroIngredient,
       calorieIntake,
       youtubeLink,
-      image,
+      public_id,
     });
+
+    console.log("new recipe is : ",newRecipe)
 
     await newRecipe.save();
 

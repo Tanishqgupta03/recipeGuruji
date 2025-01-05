@@ -41,6 +41,8 @@ const UserDetailsDialog = ({ user, isOpen, onClose }) => {
     try {
       const method = isFollowed ? "DELETE" : "POST";
 
+      console.log("isFollowed : ",isFollowed);
+
       console.log("method ; ",method);
       const response = await fetch("/api/follow-user", {
         method,
@@ -125,3 +127,85 @@ const UserDetailsDialog = ({ user, isOpen, onClose }) => {
 };
 
 export default UserDetailsDialog;
+
+
+
+/*This is a React functional component for a dialog (UserDetailsDialog) that displays user details and allows toggling the follow status for the user. It uses state to manage the follow status, statistics (followers and following counts), and loading states.
+
+handleFollowToggle Function
+Line-by-Line Explanation:
+javascript
+Copy code
+const handleFollowToggle = async () => {
+Definition: This is an asynchronous function that toggles the follow/unfollow status of the user.
+javascript
+Copy code
+try {
+Start of a try block: This is where we handle the logic and catch errors if they occur.
+javascript
+Copy code
+  const method = isFollowed ? "DELETE" : "POST";
+Determine HTTP method:
+If the user is currently followed (isFollowed is true), it will use the DELETE method to unfollow the user.
+If not followed (isFollowed is false), it will use the POST method to follow the user.
+javascript
+Copy code
+  console.log("isFollowed : ", isFollowed);
+  console.log("method : ", method);
+Debug logs: These lines print the current follow status and the HTTP method chosen for debugging purposes.
+javascript
+Copy code
+  const response = await fetch("/api/follow-user", {
+    method,
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ followingId: user._id }),
+  });
+Make an API request:
+Sends an HTTP request to /api/follow-user.
+The method dynamically adjusts based on whether the user is being followed or unfollowed.
+Includes the followingId (user's ID) in the request body as JSON.
+javascript
+Copy code
+  const data = await response.json();
+Parse response data:
+Converts the API response into a JSON object for further processing.
+javascript
+Copy code
+  if (!response.ok) {
+    throw new Error(data.error || "Failed to update follow status");
+  }
+Handle errors:
+If the response status is not okay (response.ok === false), an error is thrown with a relevant message from the response.
+javascript
+Copy code
+  setIsFollowed(!isFollowed); // Toggle the follow state
+Toggle state:
+Updates the isFollowed state to the opposite of its current value (i.e., toggles between true and false).
+javascript
+Copy code
+  fetchUserStats(); // Update stats after follow/unfollow
+Refresh stats:
+Calls fetchUserStats to refresh the followers and following counts, ensuring the UI reflects the latest values.
+javascript
+Copy code
+} catch (error) {
+  console.error("Error following/unfollowing user:", error.message);
+  alert(error.message || "Something went wrong!");
+}
+Error handling:
+If an error occurs during the API request or response parsing, it logs the error and shows an alert to the user.
+Context in Component
+State Dependencies:
+
+isFollowed: Used to determine if the user is currently followed and decide the action (follow/unfollow).
+stats: Updated after toggling to reflect the latest followers and following counts.
+UI Integration:
+
+The follow/unfollow button text ("Follow" or "Unfollow") depends on the isFollowed state.
+The button's click event is handled by this function, allowing real-time interaction and feedback.
+API Logic:
+
+Communicates with the backend using appropriate HTTP methods (POST for follow, DELETE for unfollow).
+Refreshes data after a successful update to ensure UI reflects the backend state. */

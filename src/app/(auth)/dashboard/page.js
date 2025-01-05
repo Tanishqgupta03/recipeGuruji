@@ -17,6 +17,9 @@ import { XCircle } from "lucide-react";
 import { MoreVertical, Edit, Trash2 } from 'lucide-react'; // Import icons
 import { FaUserCircle, FaUser, FaSignOutAlt } from "react-icons/fa";
 import { FaSearch } from 'react-icons/fa';
+import { Upload } from 'lucide-react';
+import { createImagePreview } from "@/lib/uploadHelpers";
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import SearchDialog from "@/personalcomponents/searchDialog";
 import {
   DropdownMenu,
@@ -52,6 +55,9 @@ const Dashboard = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [userImage, setUserImage] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  
+  const [uploading, setUploading] = useState(false);
+  const [preview, setPreview] = useState(null);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -61,7 +67,8 @@ const Dashboard = () => {
     mealType: 'other',
     calorieIntake: '',
     youtubeLink: '',
-    image: null,
+    imageUrl: null,
+    public_id: null,
   });
 
   // Fetch session data
@@ -106,6 +113,8 @@ const Dashboard = () => {
 
   const handleDelete = async () => {
     if (!recipeToDelete) return;
+
+    console.log("recipe to delelte : ",recipeToDelete);
 
     try {
       const response = await fetch("/api/delete-recipe", {
@@ -248,8 +257,40 @@ const Dashboard = () => {
     setFormData({ ...formData, [type]: updatedArray });
   };
 
-  const handleImageUpload = (e) => {
-    setFormData({ ...formData, image: e.target.files[0] });
+  const handleImageUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setPreview(await createImagePreview(file));
+
+    try {
+      setUploading(true);
+      const formData = new FormData();
+      formData.append('image', file);
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Upload failed');
+      }
+
+      const data = await response.json();
+      
+      console.log("data cloudinary for image upload : ",data);
+
+      setFormData(prev => ({
+        ...prev,
+        imageUrl: data.url,
+        public_id: data.public_id
+      }));
+    } catch (error) {
+      console.error('Error uploading image:', error);
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleSubmit = () => {
@@ -361,7 +402,8 @@ const Dashboard = () => {
       mealType: 'other',
       calorieIntake: '',
       youtubeLink: '',
-      image: null,
+      imageUrl: null,
+      public_id: null,
     });
   };
   
@@ -422,6 +464,7 @@ const Dashboard = () => {
   const onCreate = async (e) => {
     setLoading(true);
     setError(null);
+    console.log("formData is here : ",formData)
     try {
       const response = await fetch("/api/add-recipe", {
         method: "POST",
@@ -1037,22 +1080,48 @@ const Dashboard = () => {
                           Add Step
                         </button>
                       </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">Upload Image</label>
-                        <div
-                          className="border border-gray-300 rounded-lg flex items-center justify-center h-40 cursor-pointer hover:bg-gray-100"
-                          onClick={() => document.getElementById('fileInput').click()}
-                        >
-                          <span className="text-gray-500">Upload Image Here</span>
-                        </div>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          id="fileInput"
-                          onChange={handleImageUpload}
-                          className="hidden"
-                        />
-                      </div>
+                      <div className="space-y-4">
+      <label className="block text-sm font-medium text-gray-700">
+        Recipe Image
+      </label>
+      <div
+        className="relative border-2 border-dashed border-gray-300 rounded-lg p-6 hover:border-gray-400 transition-colors cursor-pointer"
+        onClick={() => document.getElementById('fileInput')?.click()}
+      >
+        {(preview || formData.imageUrl) ? (
+          <div className="relative aspect-video w-full">
+            <img
+              src={preview || formData.imageUrl}
+              alt="Preview"
+              className="rounded-lg object-cover w-full h-full"
+            />
+          </div>
+        ) : (
+          <div className="text-center">
+            <Upload className="mx-auto h-12 w-12 text-gray-400" />
+            <div className="mt-4 flex text-sm text-gray-600">
+              <label className="relative cursor-pointer rounded-md font-medium text-primary hover:text-primary/80">
+                <span>Upload a file</span>
+                <input
+                  id="fileInput"
+                  name="file"
+                  type="file"
+                  accept="image/*"
+                  className="sr-only"
+                  onChange={handleImageUpload}
+                  disabled={uploading}
+                />
+              </label>
+              <p className="pl-1">or drag and drop</p>
+            </div>
+            <p className="text-xs text-gray-500">
+              PNG, JPG, GIF up to 10MB
+            </p>
+          </div>
+        )}
+        {uploading && <LoadingSpinner />}
+      </div>
+    </div>
                     </div>
                   </div>
                   <div className="mt-6 flex justify-end space-x-4">

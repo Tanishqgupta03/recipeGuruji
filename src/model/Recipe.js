@@ -7,6 +7,7 @@ const recipeSchema = new mongoose.Schema({
   ingredients: [{ type: String }],
   steps: [{ type: String }],
   imageUrl: { type: String }, // Optional field for the recipe image
+  public_id: { type: String }, // Field to store Cloudinary's public_id
   youtubeLink: { type: String }, // Optional field for a YouTube link
   heroIngredient: { type: String }, // Optional field for the hero ingredient
   mealType: { 
