@@ -34,5 +34,16 @@ jobs:
         run: docker rm -f recipeGuruji-container
       - name: Run docker container
         run: docker run -d -p 3000:3000 --name recipeGuruji-container tanishq0514/recipeguruji
+      - name: Run new container
+        run: |
+          docker run -d \
+            -p 3000:3000 \
+            --name recipeGuruji-container \
+            --env-file .env \  # Optional: Load environment variables from a file if needed
+            tanishq0514/recipeguruji:latest
+
+      # Step 4: Clean up unused Docker resources (optional but recommended)
+      - name: Cleanup unused images
+        run: docker image prune -f
 
       
