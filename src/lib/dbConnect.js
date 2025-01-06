@@ -8,7 +8,7 @@ export const dbConnect = async () => {
         }
 
         await mongoose.connect(process.env.MONGODB_URI, {
-            useUnifiedTopology: true, // Retain this as it's still relevant
+            useUnifiedTopology: true,
         });
 
         console.log("Database connected successfully.");
