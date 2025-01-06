@@ -17,10 +17,12 @@ jobs:
       - name: Create .env file
         run: 
           echo "MONGODB_URI=${{ secrets.MONGODB_URI }}" >> .env && echo "MONGO_PASSWORD=${{ secrets.MONGO_PASSWORD }}" >> .env && echo "RESEND_API_KEY=${{ secrets.RESEND_API_KEY }}" >> .env && echo "NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}" >> .env && echo "NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}" >> .env && echo "CLOUDINARY_CLOUD_NAME=${{ secrets.CLOUDINARY_CLOUD_NAME }}" >> .env && echo "CLOUDINARY_API_KEY=${{ secrets.CLOUDINARY_API_KEY }}" >> .env && echo "CLOUDINARY_API_SECRET=${{ secrets.CLOUDINARY_API_SECRET }}" >> .env && echo "CLOUDINARY_URL=${{ secrets.CLOUDINARY_URL }}" >> .env
+      - name: Set up Docker CLI
+        uses: docker/setup-buildx-action@v2        
       - name: Build docker image
         run: docker build -t tanishq0514/recipeguruji .
-      - name: Login to docker hub
-        run: docker login -u ${{secrets.DOCKER_USERNAME}} -p${{secrets.DOCKER_PASSWORD}}
+      - name: Login to Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin      
       - name: Publish image to docker hub
         run: docker push tanishq0514/recipeguruji:latest
 
