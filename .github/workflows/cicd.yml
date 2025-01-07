@@ -1,43 +1,57 @@
+# Workflow name
 name: Deploy Next.js Application
 
+# Trigger the workflow on a push event to the 'main' branch
 on:
   push:
     branches:
       - main  # Trigger workflow on push to the 'main' branch
 
 jobs:
+  # Define the 'build' job
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # Use the latest Ubuntu runner for this job
     steps:
-      # Step 1: Checkout the source code
+      # Step 1: Check out the source code from the repository
       - name: Checkout Source
         uses: actions/checkout@v4
 
+      # Step 2: Create the `.env` file with secret values
       - name: Create .env file
         run: 
           echo "MONGODB_URI=${{ secrets.MONGODB_URI }}" >> .env && echo "MONGO_PASSWORD=${{ secrets.MONGO_PASSWORD }}" >> .env && echo "RESEND_API_KEY=${{ secrets.RESEND_API_KEY }}" >> .env && echo "NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}" >> .env && echo "NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}" >> .env && echo "CLOUDINARY_CLOUD_NAME=${{ secrets.CLOUDINARY_CLOUD_NAME }}" >> .env && echo "CLOUDINARY_API_KEY=${{ secrets.CLOUDINARY_API_KEY }}" >> .env && echo "CLOUDINARY_API_SECRET=${{ secrets.CLOUDINARY_API_SECRET }}" >> .env && echo "CLOUDINARY_URL=${{ secrets.CLOUDINARY_URL }}" >> .env
       - name: Set up Docker CLI
-        uses: docker/setup-buildx-action@v2        
+        uses: docker/setup-buildx-action@v2
+
+      # Step 4: Build the Docker image using the Dockerfile in the repository
       - name: Build docker image
         run: docker build -t tanishq0514/recipeguruji .
+
+      # Step 5: Log in to Docker Hub using stored secrets for username and password
       - name: Login to Docker Hub
-        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin      
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      # Step 6: Push the built Docker image to Docker Hub
       - name: Publish image to docker hub
         run: docker push tanishq0514/recipeguruji:latest
 
+  # Define the 'deploy' job that depends on the 'build' job
   deploy:
-    needs: build
-    runs-on: self-hosted
+    needs: build  # Ensure this job only runs after the 'build' job completes
+    runs-on: self-hosted  # Use a self-hosted runner for deployment
     steps:
+      # Step 7: Pull the latest Docker image from Docker Hub
       - name: Pull image from docker hub
         run: docker pull tanishq0514/recipeguruji:latest
+
+      # Step 8: Remove the old Docker container if it exists
       - name: Delete old container
         run: docker rm -f recipeGuruji-container
+
+      # Step 9: Start a new Docker container using the latest image
       - name: Run docker container
         run: docker run -d -p 3000:3000 --name recipeGuruji-container tanishq0514/recipeguruji
 
-      # Step 4: Clean up unused Docker resources (optional but recommended)
+      # Step 10: Clean up unused Docker resources to free space (optional but recommended)
       - name: Cleanup unused images
         run: docker image prune -f
-
-      
