@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert } from "@/components/ui/alert";
-import { useRouter } from "next/navigation"
+import { useRouter } from "next/navigation";
 
 export default function SignIn() {
   const [error, setError] = useState(null);
@@ -15,29 +15,35 @@ export default function SignIn() {
   const handleCredentialsSignIn = async (e) => {
     e.preventDefault();
     setError(null);
-  
+
     const email = e.target.email.value;
     const password = e.target.password.value;
-  
+
+    console.log("Attempting to sign in with email:", email);
+
     try {
       const res = await signIn("credentials", {
         identifier: email,
         password,
         redirect: false, // Prevent auto-redirect
       });
-  
-      console.log("response : ",res);
+
+      console.log("Sign-in response:", res);
+
       if (res.ok) {
+        console.log("Sign-in successful. Fetching session...");
         const session = await getSession();
         console.log("Session after login:", session);
-        //window.location.href = "/dashboard"; // Redirect to dashboard
+
         if (session?.user?.id) {
+          console.log("Session found. Redirecting to dashboard...");
           window.location.href = "/dashboard";
-        } 
-         else {
+        } else {
+          console.error("Session not found.");
           setError("Session not found. Please try again.");
         }
       } else {
+        console.error("Sign-in failed. Response:", res);
         setError("Invalid email or password.");
       }
     } catch (err) {
@@ -45,7 +51,6 @@ export default function SignIn() {
       setError("Something went wrong. Please try again.");
     }
   };
-  
 
   return (
     <div className="max-w-md mx-auto mt-10">

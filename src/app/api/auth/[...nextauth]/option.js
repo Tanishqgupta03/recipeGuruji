@@ -15,8 +15,8 @@ export const authOptions = {
       },
       async authorize(credentials) {
         await dbConnect();
+        console.log("Database connected. Checking credentials...");
 
-        console.log("db is here credentials")
         try {
           // Check if the user exists by email or username
           const user = await UserModel.findOne({
@@ -25,46 +25,59 @@ export const authOptions = {
               { username: credentials.identifier },
             ],
           });
-      
+
           if (!user) {
+            console.log("No user found with the provided email or username.");
             throw new Error("No account found with the provided email or username.");
           }
-      
+
           // Check if the account is verified
           if (!user.isVerified) {
+            console.log("User account is not verified.");
             throw new Error("Your account is not verified. Please verify it before logging in.");
           }
-      
+
           // Validate the password
           const isPasswordCorrect = await bcrypt.compare(
             credentials.password,
             user.password
           );
-      
+
           if (!isPasswordCorrect) {
+            console.log("Incorrect password.");
             throw new Error("Incorrect password. Please try again.");
           }
-      
-          // Return the user object if authentication is successful
+
+          console.log("User authenticated successfully:", user);
           return user;
         } catch (err) {
-          // Provide a generic error message to avoid exposing details
+          console.error("Error during authorization:", err.message);
           throw new Error(err.message || "Something went wrong. Please try again.");
         }
-      },      
+      },
     }),
   ],
   callbacks: {
     async session({ session, token }) {
+      console.log("Session callback - Token:", token);
+      console.log("Session callback - Session before update:", session);
+
       session.user.id = token.id; // Include user ID in session
       session.user.username = token.username; // Include username in session
+
+      console.log("Session callback - Session after update:", session);
       return session;
     },
     async jwt({ token, user }) {
+      console.log("JWT callback - Token before update:", token);
+      console.log("JWT callback - User:", user);
+
       if (user) {
         token.id = user.id; // Add user ID to token
         token.username = user.username; // Add username to token
       }
+
+      console.log("JWT callback - Token after update:", token);
       return token;
     },
   },
