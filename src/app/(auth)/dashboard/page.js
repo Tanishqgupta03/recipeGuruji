@@ -21,6 +21,7 @@ import { Upload } from 'lucide-react';
 import { createImagePreview } from "@/lib/uploadHelpers";
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import SearchDialog from "@/personalcomponents/searchDialog";
+import ExpertSearch from "@/personalcomponents/expertSearch";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -55,6 +56,7 @@ const Dashboard = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [userImage, setUserImage] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isExpertSearchOpen, setIsExpertSearchOpen] = useState(false);
   
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState(null);
@@ -111,6 +113,9 @@ const Dashboard = () => {
   };
   
 
+  const handleExpertGuru = () => {
+    setIsExpertSearchOpen(true);
+  };
   const handleDelete = async () => {
     if (!recipeToDelete) return;
 
@@ -611,6 +616,9 @@ const Dashboard = () => {
 
           {/* Search Dialog */}
           <SearchDialog isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+
+          {/* ExpertSearch Dialog */}
+          <ExpertSearch isOpen={isExpertSearchOpen} onClose={() => setIsExpertSearchOpen(false)} />
         </header>
 
 
@@ -744,6 +752,11 @@ const Dashboard = () => {
           <main className="flex-1 p-4">
           <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold">Recipes</h2>
+              <Button
+                className="bg-black text-white hover:bg-gray-800 focus:ring-2 focus:ring-gray-400"
+                onClick={handleExpertGuru}>
+                <span>Expert Guruji</span>
+              </Button>
               <Button
                 className="bg-black text-white hover:bg-gray-800 focus:ring-2 focus:ring-gray-400"
                 onClick={handleAddNewClick} // Define this function for action
