@@ -35,35 +35,48 @@ export async function middleware(req) {
   return NextResponse.next(); // Continue to the requested resource
 }*/
 
-import { getToken } from "next-auth/jwt";
 import { NextResponse } from "next/server";
 
 export async function middleware(req) {
-  const token = await getToken({
-    req,
-    secret: process.env.NEXTAUTH_SECRET,
-    secureCookie: process.env.NODE_ENV === "production",
-  });
-
   const { pathname } = req.nextUrl;
-
-  console.log("Middleware: Token:", token);
-  console.log("Middleware: Pathname:", pathname);
 
   // Allow public routes
   if (pathname === "/" || pathname.startsWith("/api") || pathname === "/sign-in") {
     return NextResponse.next();
   }
 
+  // Fetch token from the custom API
+  const apiUrl = new URL("/api/test-tokens", req.url).toString();
+  let token;
+
+  try {
+    const response = await fetch(apiUrl, {
+      headers: {
+        Cookie: req.headers.get("cookie") || "", // Pass cookies for token validation
+      },
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      token = data.token;
+    }
+  } catch (err) {
+    console.error("Middleware: Error fetching token:", err);
+  }
+
+  console.log("Middleware: Token fetched from API:", token);
+
   // Redirect to login if trying to access protected routes without a token
   if (pathname.startsWith("/dashboard") && !token) {
-    const loginUrl = new URL("/sign-in", req.url);
-    return NextResponse.redirect(loginUrl);
+    console.log("Middleware: Redirecting to sign-in");
+    return NextResponse.redirect(new URL("/sign-in", req.url));
   }
 
   // Allow authenticated users
+  console.log("Middleware: User authenticated");
   return NextResponse.next();
 }
+
 
 
 /*The log output indicates that your application is running smoothly with the middleware and token verification processes working as intended. Here’s a summary and some points to consider:
