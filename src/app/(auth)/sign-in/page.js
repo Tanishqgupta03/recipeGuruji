@@ -37,7 +37,7 @@ export default function SignIn() {
 
         if (session?.user?.id) {
           console.log("Session found. Redirecting to dashboard...");
-          window.location.href = "/dashboard";
+          //window.location.href = "/dashboard";
         } else {
           console.error("Session not found.");
           setError("Session not found. Please try again.");
