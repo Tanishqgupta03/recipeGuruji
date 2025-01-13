@@ -1,4 +1,4 @@
-import { getToken } from "next-auth/jwt"; // Import NextAuth's function to get the JWT from the request
+/*import { getToken } from "next-auth/jwt"; // Import NextAuth's function to get the JWT from the request
 import { NextResponse } from "next/server"; // Import NextResponse for handling responses in middleware
 
 export async function middleware(req) {
@@ -33,6 +33,36 @@ export async function middleware(req) {
   // Allow access to all other routes if no conditions are met
    // Log that the request is allowed
   return NextResponse.next(); // Continue to the requested resource
+}*/
+
+import { getToken } from "next-auth/jwt";
+import { NextResponse } from "next/server";
+
+export async function middleware(req) {
+  const token = await getToken({
+    req,
+    secret: process.env.NEXTAUTH_SECRET,
+    secureCookie: process.env.NODE_ENV === "production",
+  });
+
+  const { pathname } = req.nextUrl;
+
+  console.log("Middleware: Token:", token);
+  console.log("Middleware: Pathname:", pathname);
+
+  // Allow public routes
+  if (pathname === "/" || pathname.startsWith("/api") || pathname === "/sign-in") {
+    return NextResponse.next();
+  }
+
+  // Redirect to login if trying to access protected routes without a token
+  if (pathname.startsWith("/dashboard") && !token) {
+    const loginUrl = new URL("/sign-in", req.url);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  // Allow authenticated users
+  return NextResponse.next();
 }
 
 

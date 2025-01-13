@@ -15,31 +15,30 @@ export default function SignIn() {
   const handleCredentialsSignIn = async (e) => {
     e.preventDefault();
     setError(null);
-
+  
     const email = e.target.email.value;
     const password = e.target.password.value;
-
-    console.log("Attempting to sign in with email:", email);
-
+  
     try {
       const res = await signIn("credentials", {
         identifier: email,
         password,
-        redirect: false, // Prevent auto-redirect
+        redirect: false,
       });
-
+  
       console.log("Sign-in response:", res);
-
+  
       if (res.ok) {
         console.log("Sign-in successful. Fetching session...");
         const session = await getSession();
         console.log("Session after login:", session);
-
+  
         if (session?.user?.id) {
           console.log("Session found. Redirecting to dashboard...");
           window.location.href = "/dashboard";
         } else {
-          console.error("Session not found.");
+          console.error("Session not found. Debugging cookies and tokens...");
+          console.log("Cookies:", document.cookie);
           setError("Session not found. Please try again.");
         }
       } else {
@@ -51,6 +50,7 @@ export default function SignIn() {
       setError("Something went wrong. Please try again.");
     }
   };
+  
 
   return (
     <div className="max-w-md mx-auto mt-10">
