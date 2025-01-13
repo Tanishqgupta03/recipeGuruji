@@ -62,10 +62,8 @@ export const authOptions = {
       console.log("Session callback - Token:", token);
       console.log("Session callback - Session before update:", session);
 
-      if (token) {
-        session.user.id = token.id; // Include user ID in session
-        session.user.username = token.username; // Include username in session
-      }
+      session.user.id = token.id; // Include user ID in session
+      session.user.username = token.username; // Include username in session
 
       console.log("Session callback - Session after update:", session);
       return session;
@@ -88,22 +86,8 @@ export const authOptions = {
   },
   session: {
     strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60, // 30 days
-  },
-  cookies: {
-    sessionToken: {
-      name: `next-auth.session-token`,
-      options: {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production", // Ensure cookies are secure in production
-        sameSite: process.env.NODE_ENV === "production" ? "lax" : "lax", // Use "none" if you need cross-site cookies
-        path: "/",
-        domain: process.env.NODE_ENV === "production" ? ".ec2-72-44-34-69.compute-1.amazonaws.com" : undefined, // Set domain for production
-      },
-    },
   },
   secret: process.env.NEXTAUTH_SECRET,
-  debug: process.env.NODE_ENV === "development", // Enable debugging in development
 };
 
 export default NextAuth(authOptions);

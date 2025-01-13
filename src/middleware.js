@@ -1,4 +1,4 @@
-/*import { getToken } from "next-auth/jwt"; // Import NextAuth's function to get the JWT from the request
+import { getToken } from "next-auth/jwt"; // Import NextAuth's function to get the JWT from the request
 import { NextResponse } from "next/server"; // Import NextResponse for handling responses in middleware
 
 export async function middleware(req) {
@@ -11,6 +11,8 @@ export async function middleware(req) {
     secureCookie: process.env.NODE_ENV === "production", // Use secure cookies in production for better security
   });
   // Log the token (null if unauthenticated)
+
+  console.log("token : token is here : ",token);
 
   const { pathname } = req.nextUrl; // Extract the pathname from the request URL
    // Log the pathname for debugging
@@ -31,50 +33,6 @@ export async function middleware(req) {
   // Allow access to all other routes if no conditions are met
    // Log that the request is allowed
   return NextResponse.next(); // Continue to the requested resource
-}
-*/
-
-import { getToken } from "next-auth/jwt";
-import { NextResponse } from "next/server";
-
-export async function middleware(req) {
-  const { pathname } = req.nextUrl;
-  console.log("Middleware triggered for path:", pathname);
-
-  // Exclude static assets and API routes
-  if (
-    pathname.startsWith("/_next/") ||
-    pathname.startsWith("/api/") ||
-    pathname.startsWith("/static/")
-  ) {
-    console.log("Skipping middleware for static asset or API route:", pathname);
-    return NextResponse.next();
-  }
-
-  // Fetch the token
-  const token = await getToken({
-    req,
-    secret: process.env.NEXTAUTH_SECRET,
-    secureCookie: process.env.NODE_ENV === "production",
-  });
-  console.log("Token fetched:", token);
-
-  // Allow access to the home page ("/") without a token
-  if (pathname === "/") {
-    console.log("Allowing access to home page");
-    return NextResponse.next();
-  }
-
-  // Redirect unauthenticated users trying to access protected routes
-  if (pathname.startsWith("/dashboard") && !token) {
-    console.log("Redirecting unauthenticated user to sign-in page");
-    const loginUrl = new URL("/sign-in", req.url);
-    return NextResponse.redirect(loginUrl);
-  }
-
-  // Allow access to all other routes if the token is valid
-  console.log("Allowing access to protected route:", pathname);
-  return NextResponse.next();
 }
 
 
