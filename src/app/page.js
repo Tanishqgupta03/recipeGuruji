@@ -1,19 +1,49 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { FaHome, FaStar, FaUtensils, FaCoffee, FaHamburger, FaCookie } from "react-icons/fa";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import {
+  FaHome,
+  FaStar,
+  FaUtensils,
+  FaCoffee,
+  FaHamburger,
+  FaCookie,
+} from "react-icons/fa";
 import { FaBowlRice } from "react-icons/fa6";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"; // ShadCN dialog components
-import { FaCheckCircle } from 'react-icons/fa';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { FaCheckCircle, FaArrowRight } from "react-icons/fa"; // Added FaArrowRight for redirection icon
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"; // ShadCN dropdown components
 
 const Dashboard = () => {
   const [recipes, setRecipes] = useState([]);
   const [filteredRecipes, setFilteredRecipes] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState('top');
+  const [activeTab, setActiveTab] = useState("top");
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -44,24 +74,24 @@ const Dashboard = () => {
   };
 
   const filterRecipes = (type) => {
-    setActiveTab("")
+    setActiveTab("");
     setLoading(true);
 
     setTimeout(() => {
       if (type === "all") {
         setFilteredRecipes(recipes);
-        setActiveTab("all")
+        setActiveTab("all");
       } else if (type === "top") {
         const topRated = recipes.filter((recipe) => recipe.averageRating > 7);
         setFilteredRecipes(topRated);
-        setActiveTab("top")
+        setActiveTab("top");
       } else {
         const mealRecipes = recipes.filter((recipe) => recipe.mealType === type);
         setFilteredRecipes(mealRecipes);
-        setActiveTab(type)
+        setActiveTab(type);
       }
 
-      console.log("activeTab ; ",activeTab)
+      console.log("activeTab ; ", activeTab);
       setLoading(false);
     }, 500); // Simulate loader delay for better UX
   };
@@ -82,7 +112,11 @@ const Dashboard = () => {
 
   return (
     <TooltipProvider>
-      <div className={`relative min-h-screen bg-white text-gray-900 ${loading ? "overflow-hidden" : ""}`}>
+      <div
+        className={`relative min-h-screen bg-white text-gray-900 ${
+          loading ? "overflow-hidden" : ""
+        }`}
+      >
         {/* Loader */}
         {loading && (
           <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-50 backdrop-blur-md z-40">
@@ -95,22 +129,56 @@ const Dashboard = () => {
 
         {/* Header Section */}
         <header className="flex justify-between items-center w-full px-6 py-4 bg-gray-100 shadow">
-        <div className="flex items-center">
-          <img
-            src="/images/logo.webp"
-            alt="RecipeGuruji Logo"
-            className="w-12 h-12 rounded-full"
-          />
-          <h1 className="ml-4 text-lg font-bold">Welcome to RecipeGuruji</h1>
-        </div>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="default">Register</Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              Register yourself for a better experience
-            </TooltipContent>
-          </Tooltip>
+          <div className="flex items-center">
+            <img
+              src="/images/logo.webp"
+              alt="RecipeGuruji Logo"
+              className="w-12 h-12 rounded-full"
+            />
+            <h1 className="ml-4 text-lg font-bold">Welcome to RecipeGuruji</h1>
+          </div>
+
+          {/* Buttons: Personal Dashboard and Register Dropdown */}
+          <div className="flex items-center gap-4">
+            {/* Personal Dashboard Button */}
+            <Button
+              variant="default"
+              className="bg-black hover:bg-gray-900 text-white font-semibold flex items-center gap-2"
+              onClick={() => (window.location.href = "/dashboard")}
+            >
+              Personal Dashboard
+              <FaArrowRight className="text-white" /> {/* Redirection icon */}
+            </Button>
+
+            {/* Register Dropdown (on hover) */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="bg-white hover:bg-gray-100 text-gray-800 font-semibold border border-gray-300"
+                >
+                  Register
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                className="w-48"
+                onMouseEnter={(e) => e.preventDefault()} // Keep dropdown open on hover
+              >
+                <DropdownMenuItem
+                  onClick={() => (window.location.href = "/sign-up")}
+                  className="cursor-pointer hover:bg-gray-100"
+                >
+                  Sign Up
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => (window.location.href = "/sign-in")}
+                  className="cursor-pointer hover:bg-gray-100"
+                >
+                  Sign In
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </header>
 
         {/* Divider */}
@@ -127,7 +195,9 @@ const Dashboard = () => {
                 alt="RecipeGuruji Logo"
                 className="w-20 h-20 rounded-full shadow-md border-4 border-gray-200"
               />
-              <h1 className="text-xl font-bold text-gray-800 tracking-wide">RecipeGuruji</h1>
+              <h1 className="text-xl font-bold text-gray-800 tracking-wide">
+                RecipeGuruji
+              </h1>
             </div>
 
             {/* Navigation Section */}
@@ -183,7 +253,8 @@ const Dashboard = () => {
                       Breakfast
                     </div>
                     <span className="text-sm bg-gray-200 rounded-full px-3 py-1 shadow-md">
-                      {recipes.filter((recipe) => recipe.mealType === "breakfast").length}
+                      {recipes.filter((recipe) => recipe.mealType === "breakfast")
+                        .length}
                     </span>
                   </li>
 
@@ -199,7 +270,8 @@ const Dashboard = () => {
                       Lunch
                     </div>
                     <span className="text-sm bg-gray-200 rounded-full px-3 py-1 shadow-md">
-                      {recipes.filter((recipe) => recipe.mealType === "lunch").length}
+                      {recipes.filter((recipe) => recipe.mealType === "lunch")
+                        .length}
                     </span>
                   </li>
 
@@ -215,7 +287,8 @@ const Dashboard = () => {
                       Snack
                     </div>
                     <span className="text-sm bg-gray-200 rounded-full px-3 py-1 shadow-md">
-                      {recipes.filter((recipe) => recipe.mealType === "snack").length}
+                      {recipes.filter((recipe) => recipe.mealType === "snack")
+                        .length}
                     </span>
                   </li>
 
@@ -231,13 +304,15 @@ const Dashboard = () => {
                       Dinner
                     </div>
                     <span className="text-sm bg-gray-200 rounded-full px-3 py-1 shadow-md">
-                      {recipes.filter((recipe) => recipe.mealType === "dinner").length}
+                      {recipes.filter((recipe) => recipe.mealType === "dinner")
+                        .length}
                     </span>
                   </li>
                 </ul>
               </ul>
             </nav>
           </aside>
+
           {/* Content */}
           <main className="flex-1 p-4">
             <h2 className="text-xl font-bold mb-4">Recipes</h2>
@@ -286,12 +361,11 @@ const Dashboard = () => {
             )}
 
             {/* Modal Dialog */}
-            {/* Modal Dialog */}
             {selectedRecipe && (
               <Dialog open={isOpen} onOpenChange={closeModal}>
                 <DialogContent
                   className="max-w-5xl w-full max-h-screen h-auto p-8 bg-white rounded-lg shadow-lg overflow-hidden custom-scrollbar"
-                  style={{ height: '90vh', overflowY: 'auto' }}
+                  style={{ height: "90vh", overflowY: "auto" }}
                 >
                   {/* Header Section */}
                   <div className="flex items-center space-x-6 pb-6 border-b border-gray-200">
@@ -317,7 +391,9 @@ const Dashboard = () => {
                     {/* Right Section: Details */}
                     <div className="lg:col-span-2 flex flex-col justify-between">
                       <div>
-                        <h2 className="text-2xl font-semibold text-gray-800">{selectedRecipe.title}</h2>
+                        <h2 className="text-2xl font-semibold text-gray-800">
+                          {selectedRecipe.title}
+                        </h2>
                         <p className="mt-2 text-gray-600">{selectedRecipe.description}</p>
 
                         {/* Additional Info */}
@@ -385,9 +461,7 @@ const Dashboard = () => {
                   )}
                 </DialogContent>
               </Dialog>
-
             )}
-
           </main>
         </div>
       </div>

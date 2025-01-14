@@ -26,18 +26,16 @@ export async function DELETE(request) {
         const { public_id } = recipe;
         console.log("Cloudinary deletion public_id:", public_id);
 
-        if (!public_id) {
-            return new Response("No image associated with this recipe", { status: 400 });
+        if (public_id) {
+            // Delete the image from Cloudinary
+            await cloudinary.uploader.destroy(public_id, (error, result) => {
+                if (error) {
+                    console.error("Error deleting from Cloudinary:", error);
+                    throw new Error("Failed to delete image from Cloudinary");
+                }
+                console.log("Cloudinary deletion result:", result);
+            });
         }
-
-        // Delete the image from Cloudinary
-        await cloudinary.uploader.destroy(public_id, (error, result) => {
-            if (error) {
-                console.error("Error deleting from Cloudinary:", error);
-                throw new Error("Failed to delete image from Cloudinary");
-            }
-            console.log("Cloudinary deletion result:", result);
-        });
 
         // Delete the recipe from MongoDB
         await Recipe.findByIdAndDelete(id);
