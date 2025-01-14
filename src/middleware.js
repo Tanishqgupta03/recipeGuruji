@@ -1,4 +1,4 @@
-import { getToken } from "next-auth/jwt"; // Import NextAuth's function to get the JWT from the request
+/*import { getToken } from "next-auth/jwt"; // Import NextAuth's function to get the JWT from the request
 import { NextResponse } from "next/server"; // Import NextResponse for handling responses in middleware
 
 export async function middleware(req) {
@@ -33,9 +33,9 @@ export async function middleware(req) {
   // Allow access to all other routes if no conditions are met
    // Log that the request is allowed
   return NextResponse.next(); // Continue to the requested resource
-}
+}*/
 
-/*import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
 export async function middleware(req) {
   const { pathname } = req.nextUrl;
@@ -75,7 +75,7 @@ export async function middleware(req) {
   // Allow authenticated users
   console.log("Middleware: User authenticated");
   return NextResponse.next();
-}*/
+}
 
 
 
