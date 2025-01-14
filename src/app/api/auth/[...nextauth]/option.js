@@ -80,6 +80,17 @@ export const authOptions = {
       console.log("JWT callback - Token after update:", token);
       return token;
     },
+    cookies: {
+      sessionToken: {
+        name: `__Secure-next-auth.session-token`,
+        options: {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "lax",
+          path: "/",
+        },
+      },
+    },
   },
   pages: {
     signIn: "/sign-in",
